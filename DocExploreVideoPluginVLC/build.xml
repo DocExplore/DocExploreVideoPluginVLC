@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="jars">
+	<target name="clean">
+		<delete dir="build"/>
+	</target>
+	
+	<target name="jars">
+		<antcall target="jar"><param name="platform" value="win32"/></antcall>
+		<antcall target="jar"><param name="platform" value="win64"/></antcall>
+		<antcall target="jar"><param name="platform" value="osx"/></antcall>
+	</target>
+	
+	<target name="jar">
+		<mkdir dir="build/${platform}"/>
+        <jar destfile="build/${platform}/DocExploreVLCPlugin.jar" compress="false">
+        	<fileset dir="bin"/>
+        	<fileset dir=".">
+        		<include name="jar/*.jar"/>
+        	    <include name="libs-${platform}/**"/>
+            </fileset>
+        </jar>
+    </target>
+</project>
