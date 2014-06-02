@@ -21,6 +21,8 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import javax.swing.JOptionPane;
+
 import org.interreg.docexplore.util.ByteUtils;
 
 import uk.co.caprica.vlcj.binding.LibVlc;
@@ -41,6 +43,7 @@ public class Utils
 			return;
 		
 		File vlcLibs = new File(dependencies, "libs");
+		boolean firstInit = false;
 		if (!vlcLibs.exists())
 		{
 			vlcLibs.mkdir();
@@ -55,12 +58,25 @@ public class Utils
 				add(vlcJar, entry, vlcLibs);
 			}
 			vlcJar.close();
+			firstInit = true;
 		}
 		
 		System.out.println("VLC native library dir: "+vlcLibs.getCanonicalPath()+File.separator+"lib");
 		NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), vlcLibs.getCanonicalPath()+File.separator+"lib");
-		Native.loadLibrary(RuntimeUtil.getLibVlcLibraryName(), LibVlc.class);
-		LibXUtil.initialise();
+		try
+		{
+			Native.loadLibrary(RuntimeUtil.getLibVlcLibraryName(), LibVlc.class);
+			LibXUtil.initialise();
+		}
+		catch (Throwable ex)
+		{
+			if (firstInit && System.getProperty("os.name").toLowerCase().contains("linux"))
+			{
+				JOptionPane.showMessageDialog(null, "You must restart DocExplore to enable the video plugin");
+				System.exit(0);
+			}
+			
+		}
 		Logger.setLevel(Level.FATAL);
 		inited = true;
 	}

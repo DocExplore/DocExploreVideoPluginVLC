@@ -8,6 +8,7 @@
 		<antcall target="jar"><param name="platform" value="win32"/></antcall>
 		<antcall target="jar"><param name="platform" value="win64"/></antcall>
 		<antcall target="jar"><param name="platform" value="osx"/></antcall>
+		<antcall target="jar"><param name="platform" value="linux64"/></antcall>
 	</target>
 	
 	<target name="jar">
