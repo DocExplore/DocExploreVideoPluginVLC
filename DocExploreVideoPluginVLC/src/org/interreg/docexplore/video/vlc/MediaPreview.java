@@ -26,6 +26,9 @@ import org.interreg.docexplore.management.DocExploreDataLink;
 import org.interreg.docexplore.manuscript.MetaData;
 import org.interreg.docexplore.util.GuiUtils;
 
+import uk.co.caprica.vlcj.player.MediaDetails;
+import uk.co.caprica.vlcj.player.TrackDescription;
+
 @SuppressWarnings("serial")
 public class MediaPreview extends PreviewPanel
 {
@@ -55,6 +58,15 @@ public class MediaPreview extends PreviewPanel
 					else if (object instanceof MetaData)
 						file = DocExploreDataLink.getOrExtractMetaDataFile((MetaData)object);
 					else return;
+					
+					MediaDetailsReader mdr = new MediaDetailsReader();
+					MediaDetails details = mdr.getMediaDetails(file.getAbsolutePath());
+					System.out.println(details.getAudioTrackCount()+" "+details.getVideoTrackCount());
+					for (TrackDescription desc : details.getAudioDescriptions())
+						System.out.println(desc.description());
+					for (TrackDescription desc : details.getVideoDescriptions())
+						System.out.println(desc.description());
+					
 					MediaReader reader = new MediaReader(getPreferredSize().width, getPreferredSize().height);
 					panel.set(reader);
 					reader.startMedia(file.getAbsolutePath());

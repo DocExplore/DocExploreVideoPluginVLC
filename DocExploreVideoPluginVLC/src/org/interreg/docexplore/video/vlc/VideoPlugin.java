@@ -30,6 +30,8 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 import org.interreg.docexplore.DocExploreTool;
+import org.interreg.docexplore.authoring.ExportDialog;
+import org.interreg.docexplore.authoring.ExportOptions;
 import org.interreg.docexplore.authoring.explorer.edit.InfoElement;
 import org.interreg.docexplore.authoring.explorer.edit.MetaDataEditor;
 import org.interreg.docexplore.authoring.preview.PreviewPanel;
@@ -153,23 +155,39 @@ public class VideoPlugin implements MetaDataPlugin
 	
 	public String getFileType() {return "Media";}
 	
-	public void exportMetaData(MetaData md, StringBuffer xml, File bookDir, int id)
+	public final static String optionKey = "DocExploreVideoPluginVLC";
+	public void exportMetaData(MetaData md, StringBuffer xml, File bookDir, int id, ExportOptions options, int exportType)
 	{
 		try
 		{
-			File dest = new File(bookDir, "media"+id);
-			FileOutputStream output = new FileOutputStream(dest);
-			ByteUtils.writeStream(md.getValue(), output);
-			output.close();
+			InputStream in = md.getValue();
+			File dest = null;
+			if (((VideoExportOptions)options.getPluginPanel(optionKey)).shouldConvert())
+				dest = Utils.webConversion(in, bookDir, "media"+id);
+			if (dest == null || !dest.exists())
+			{
+				dest = new File(bookDir, "media"+id);
+				FileOutputStream output = new FileOutputStream(dest);
+				ByteUtils.writeStream(md.getValue(), output);
+				output.close();
+			}
 			
 //			Map<String, String> props = Utils.readProperties(dest);
 //			int width = props.get("width") == null ? 400 : Integer.parseInt(props.get("width"));
 //			int height = props.get("height") == null ? 400 : Integer.parseInt(props.get("height"));
 			int width = 400, height = 400;
 			
-			xml.append("\t\t\t<Info type=\"media\" src=\"").append("media").append(id)
+			xml.append("\t\t\t<Info type=\"media\" src=\"").append(dest.getName())
 				.append("\" width=\"").append(width).append("\" height=\"").append(height).append("\" />\n");
 		}
 		catch (Exception e) {e.printStackTrace();}
+	}
+
+	@Override public void setupExportOptions(ExportOptions options, int exportType)
+	{
+		if (options.getPluginPanel(optionKey) == null)
+			options.addPluginPanel(optionKey, new VideoExportOptions());
+		VideoExportOptions voptions = (VideoExportOptions)options.getPluginPanel(optionKey);
+		voptions.convertBox.setSelected(exportType != ExportDialog.ReaderExport);
 	}
 }
