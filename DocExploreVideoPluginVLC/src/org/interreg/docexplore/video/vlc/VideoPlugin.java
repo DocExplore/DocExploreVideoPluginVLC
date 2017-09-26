@@ -15,11 +15,11 @@ The fact that you are presently reading this means that you have had knowledge o
 package org.interreg.docexplore.video.vlc;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.JarFile;
@@ -78,12 +78,15 @@ public class VideoPlugin implements MetaDataPlugin
 		return new JLabel("<html><b>"+keyName+"</b></html>", ImageUtils.getIcon("video-32x32.png"), SwingConstants.HORIZONTAL);
 	}
 
-	public InputStream createDefaultValue()
+	String lastFileSelected = null;
+	public Object createDefaultValue()
 	{
 		File selected = DocExploreTool.getFileDialogs().openFile(mediaCategory);
 		if (selected != null)
-			try {return new FileInputStream(selected);}
-			catch (Exception e) {e.printStackTrace();}
+		{
+			lastFileSelected = selected.getName();
+			return selected;
+		}
 		return null;
 	}
 	public Collection<File> openFiles(boolean multiple)
@@ -166,7 +169,20 @@ public class VideoPlugin implements MetaDataPlugin
 				dest = Utils.webConversion(in, bookDir, "media"+id);
 			if (dest == null || !dest.exists())
 			{
-				dest = new File(bookDir, "media"+id);
+				String ext = null;
+				List<MetaData> mds = md.getMetaDataListForKey(md.getLink().getOrCreateKey("source-uri"));
+				if (mds.size() > 0)
+				{
+					String uri = mds.get(0).getString();
+					int dot = uri.lastIndexOf('.');
+					if (dot >= 0)
+					{
+						String end = uri.substring(dot+1).toLowerCase();
+						if (suffixes.contains(end))
+							ext = end;
+					}
+				}
+				dest = new File(bookDir, "media"+id+(ext != null ? "."+ext : ""));
 				FileOutputStream output = new FileOutputStream(dest);
 				ByteUtils.writeStream(md.getValue(), output);
 				output.close();
