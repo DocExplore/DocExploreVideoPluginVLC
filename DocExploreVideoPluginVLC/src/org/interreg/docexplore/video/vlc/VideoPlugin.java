@@ -30,16 +30,17 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 import org.interreg.docexplore.DocExploreTool;
-import org.interreg.docexplore.authoring.ExportDialog;
+import org.interreg.docexplore.authoring.ExportDialogOld;
 import org.interreg.docexplore.authoring.ExportOptions;
 import org.interreg.docexplore.authoring.explorer.edit.InfoElement;
 import org.interreg.docexplore.authoring.explorer.edit.MetaDataEditor;
 import org.interreg.docexplore.authoring.preview.PreviewPanel;
+import org.interreg.docexplore.authoring.rois.RegionSidePanel;
 import org.interreg.docexplore.datalink.DataLinkException;
 import org.interreg.docexplore.gui.ErrorHandler;
 import org.interreg.docexplore.gui.FileDialogs;
 import org.interreg.docexplore.management.annotate.AnnotationEditor;
-import org.interreg.docexplore.management.annotate.AnnotationPanel;
+import org.interreg.docexplore.management.annotate.MMTAnnotationPanel;
 import org.interreg.docexplore.management.plugin.metadata.MetaDataPlugin;
 import org.interreg.docexplore.manuscript.MetaData;
 import org.interreg.docexplore.util.ByteUtils;
@@ -68,7 +69,7 @@ public class VideoPlugin implements MetaDataPlugin
 
 	public String getType() {return "vid";}
 
-	public AnnotationEditor createEditor(AnnotationPanel panel, MetaData annotation) throws DataLinkException
+	public AnnotationEditor createEditor(MMTAnnotationPanel panel, MetaData annotation) throws DataLinkException
 	{
 		return new VideoEditor(this, panel, annotation);
 	}
@@ -102,6 +103,10 @@ public class VideoPlugin implements MetaDataPlugin
 	}
 	
 	public InfoElement createInfoElement(MetaDataEditor editor, MetaData md, int width) throws DataLinkException
+	{
+		return new MediaAuthoringElementOld(editor, md, width);
+	}
+	public org.interreg.docexplore.authoring.rois.InfoElement createInfoElement(RegionSidePanel editor, MetaData md, int width) throws DataLinkException
 	{
 		return new MediaAuthoringElement(editor, md, width);
 	}
@@ -204,6 +209,6 @@ public class VideoPlugin implements MetaDataPlugin
 		if (options.getPluginPanel(optionKey) == null)
 			options.addPluginPanel(optionKey, new VideoExportOptions());
 		VideoExportOptions voptions = (VideoExportOptions)options.getPluginPanel(optionKey);
-		voptions.convertBox.setSelected(exportType != ExportDialog.ReaderExport);
+		voptions.convertBox.setSelected(exportType != ExportDialogOld.ReaderExport);
 	}
 }

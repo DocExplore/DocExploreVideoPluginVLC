@@ -30,11 +30,12 @@ import javax.swing.JTextField;
 import org.interreg.docexplore.DocExploreTool;
 import org.interreg.docexplore.datalink.DataLinkException;
 import org.interreg.docexplore.gui.ErrorHandler;
-import org.interreg.docexplore.internationalization.XMLResourceBundle;
-import org.interreg.docexplore.management.DocExploreDataLink;
+import org.interreg.docexplore.internationalization.Lang;
 import org.interreg.docexplore.management.annotate.AnnotationEditor;
-import org.interreg.docexplore.management.annotate.AnnotationPanel;
+import org.interreg.docexplore.management.annotate.MMTAnnotationPanel;
+import org.interreg.docexplore.manuscript.DocExploreDataLink;
 import org.interreg.docexplore.manuscript.MetaData;
+import org.interreg.docexplore.util.ImageUtils;
 
 @SuppressWarnings("serial")
 public class VideoEditor extends AnnotationEditor
@@ -49,12 +50,13 @@ public class VideoEditor extends AnnotationEditor
 	VideoPlugin plugin;
 	File value;
 	
-	public VideoEditor(VideoPlugin plugin, AnnotationPanel panel, final MetaData annotation) throws DataLinkException
+	public VideoEditor(VideoPlugin plugin, MMTAnnotationPanel panel, final MetaData annotation) throws DataLinkException
 	{
 		super(panel, annotation);
 		
 		this.plugin = plugin;
 		this.value = null;//DocExploreDataLink.getOrExtractMetaDataFile(annotation);
+		keyLabel.setIcon(ImageUtils.getIcon("video-64x64.png"));
 	}
 	
 	MediaPanel videoPanel = null;
@@ -77,7 +79,7 @@ public class VideoEditor extends AnnotationEditor
 			imageField.setText(annotation.getCanonicalUri());
 			imagePanel.add(imageField, BorderLayout.CENTER);
 			JButton browseButton = new JButton(
-				XMLResourceBundle.getString("management-lrb", "annotateBrowseLabel"));
+				Lang.s("annotateBrowseLabel"));
 			if (videoPanel == null)
 				videoPanel = new MediaPanel(16);
 			

@@ -18,10 +18,10 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
-import org.interreg.docexplore.authoring.explorer.edit.InfoElement;
-import org.interreg.docexplore.authoring.explorer.edit.MetaDataEditor;
+import org.interreg.docexplore.authoring.rois.InfoElement;
+import org.interreg.docexplore.authoring.rois.RegionSidePanel;
 import org.interreg.docexplore.datalink.DataLinkException;
-import org.interreg.docexplore.management.DocExploreDataLink;
+import org.interreg.docexplore.manuscript.DocExploreDataLink;
 import org.interreg.docexplore.manuscript.MetaData;
 
 @SuppressWarnings("serial")
@@ -29,7 +29,7 @@ public class MediaAuthoringElement extends InfoElement
 {
 	MediaPanel panel;
 	
-	public MediaAuthoringElement(MetaDataEditor editor, MetaData md, int width) throws DataLinkException
+	public MediaAuthoringElement(RegionSidePanel editor, MetaData md, int width) throws DataLinkException
 	{
 		super(editor, md);
 		

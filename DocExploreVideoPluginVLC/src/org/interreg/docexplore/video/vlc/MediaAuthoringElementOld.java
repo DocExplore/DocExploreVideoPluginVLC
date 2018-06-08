@@ -15,64 +15,60 @@ The fact that you are presently reading this means that you have had knowledge o
 package org.interreg.docexplore.video.vlc;
 
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import java.io.File;
 
-import javax.swing.BorderFactory;
-
-import org.interreg.docexplore.authoring.preview.PreviewPanel;
-import org.interreg.docexplore.gui.ErrorHandler;
+import org.interreg.docexplore.authoring.explorer.edit.InfoElement;
+import org.interreg.docexplore.authoring.explorer.edit.MetaDataEditor;
+import org.interreg.docexplore.datalink.DataLinkException;
 import org.interreg.docexplore.manuscript.DocExploreDataLink;
 import org.interreg.docexplore.manuscript.MetaData;
-import org.interreg.docexplore.util.GuiUtils;
-
-import uk.co.caprica.vlcj.player.MediaDetails;
-import uk.co.caprica.vlcj.player.TrackDescription;
 
 @SuppressWarnings("serial")
-public class MediaPreview extends PreviewPanel
+public class MediaAuthoringElementOld extends InfoElement
 {
 	MediaPanel panel;
 	
-	public MediaPreview()
+	public MediaAuthoringElementOld(MetaDataEditor editor, MetaData md, int width) throws DataLinkException
 	{
+		super(editor, md);
+		
+		File file = DocExploreDataLink.getOrExtractMetaDataFile(md);
+		if (file == null)
+			throw new DataLinkException(md.getLink().getLink(), "Couldn't get file for "+md.getType()+" "+md.getCanonicalUri());
+		
+		MediaReader reader = null;
+		try {reader = new MediaReader(width, width);}
+		catch (Exception e) {throw new DataLinkException(md.getLink().getLink(), e);}
+		
 		this.panel = new MediaPanel(16);
-		panel.setBorder(BorderFactory.createLineBorder(Color.black, 2));
-		panel.setPreferredSize(new Dimension(400, 400));
+		panel.set(reader);
+		try {panel.player.startMedia(file.getCanonicalPath());}
+		catch (Exception e) {throw new DataLinkException(md.getLink().getLink(), e);}
+		panel.player.pause();
+		
 		add(panel);
 	}
-	
-	public void dispose() {if (panel.player != null) panel.player.dispose();}
-	
-	public void set(final Object object)
+
+	public void dispose()
 	{
-		GuiUtils.blockUntilComplete(new Runnable()
+		if (panel != null && panel.player != null)
+			panel.player.dispose();
+	}
+
+	public BufferedImage getPreview(int width, Color back)
+	{
+		BufferedImage res;
+		if (panel.image == null)
+			res = new BufferedImage(width, 9*width/16, BufferedImage.TYPE_3BYTE_BGR);
+		else
 		{
-			public void run()
-			{
-				try
-				{
-					File file = null;
-					if (object instanceof File)
-						file = (File)object;
-					else if (object instanceof MetaData)
-						file = DocExploreDataLink.getOrExtractMetaDataFile((MetaData)object);
-					else return;
-					
-					MediaDetailsReader mdr = new MediaDetailsReader();
-					MediaDetails details = mdr.getMediaDetails(file.getAbsolutePath());
-					System.out.println(details.getAudioTrackCount()+" "+details.getVideoTrackCount());
-					for (TrackDescription desc : details.getAudioDescriptions())
-						System.out.println(desc.description());
-					for (TrackDescription desc : details.getVideoDescriptions())
-						System.out.println(desc.description());
-					
-					MediaReader reader = new MediaReader(getPreferredSize().width, getPreferredSize().height);
-					panel.set(reader);
-					reader.startMedia(file.getAbsolutePath());
-				}
-				catch (Exception e) {ErrorHandler.defaultHandler.submit(e, true);}
-			}
-		}, null);
+			int height = (int)(width/panel.ratio);
+			res = new BufferedImage(width, height+MediaControlElement.controlHeight, BufferedImage.TYPE_3BYTE_BGR);
+			res.createGraphics().drawImage(panel.image, 0, 0, width, height, 0, 0, panel.image.getWidth(), 
+				(panel.image.getHeight()-MediaControlElement.controlHeight), null);
+			MediaPanel.drawControls(res.createGraphics(), 0, panel.player.getLength(), false, 0, height, width, MediaControlElement.controlHeight);
+		}
+		return res;
 	}
 }
