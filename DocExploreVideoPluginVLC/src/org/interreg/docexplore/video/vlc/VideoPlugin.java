@@ -30,7 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 import org.interreg.docexplore.DocExploreTool;
-import org.interreg.docexplore.authoring.ExportDialogOld;
+import org.interreg.docexplore.authoring.ExportDialog;
 import org.interreg.docexplore.authoring.ExportOptions;
 import org.interreg.docexplore.authoring.explorer.edit.InfoElement;
 import org.interreg.docexplore.authoring.explorer.edit.MetaDataEditor;
@@ -209,6 +209,6 @@ public class VideoPlugin implements MetaDataPlugin
 		if (options.getPluginPanel(optionKey) == null)
 			options.addPluginPanel(optionKey, new VideoExportOptions());
 		VideoExportOptions voptions = (VideoExportOptions)options.getPluginPanel(optionKey);
-		voptions.convertBox.setSelected(exportType != ExportDialogOld.ReaderExport);
+		voptions.convertBox.setSelected(exportType != ExportDialog.ReaderExport);
 	}
 }
